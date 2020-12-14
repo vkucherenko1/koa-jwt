@@ -13,12 +13,12 @@ const userService = require('../services/user')
 const router = new Router()
 
 async function createTokenPair(userId) {
-    const refreshToken = uuidv4();
+    let refreshToken = uuidv4()
     await tokenService.create({ userId, refreshToken })
 
     return {
         token: jwt.sign({ id: userId }, config.SECRET_KEY, { algorithm: 'HS512' }),
-        refreshToken
+        refreshToken: Buffer.from(refreshToken, 'utf-8').toString('base64')
     }
 }
 
@@ -32,17 +32,18 @@ router.post('/login', bodyParser(), async ctx => {
     else {
         const data = await createTokenPair(user.id)
         ctx.body = {
-            message: 'SUCCESS LOGIN',
+            message: "Login success",
             data
         }
     }
 })
 
-router.post('/refresh', bodyParser(), async ctx => {
-    const { refreshToken } = ctx.request.body
-    const [token] = await tokenService.find({ refreshToken })
+router.post('/refresh', jwtMiddleware({ secret: config.SECRET_KEY }), bodyParser(), async ctx => {
+    const refreshToken = Buffer.from(ctx.request.body.refreshToken, 'base64').toString('utf-8');;
+    const { id: userId } = ctx.state.user;
+    const [token] = (await tokenService.find({ userId })).filter(e => bcrypt.compareSync(refreshToken, e.refreshToken))
     if (!token) {
-        ctx.body = 'Invalid token'
+        ctx.body = "Invalid token"
     }
     else {
         await tokenService.remove({ refreshToken: token.refreshToken })
@@ -52,10 +53,17 @@ router.post('/refresh', bodyParser(), async ctx => {
 
 router.post('/logout', jwtMiddleware({ secret: config.SECRET_KEY }), async ctx => {
     const { id: userId } = ctx.state.user;
-    await tokenService.remove({userId})
+    await tokenService.remove({ userId })
     ctx.body = {
-        "success": true
+        "success": true,
+        "message": "Logout success"
     }
 })
+
+router.get('/manual/:id', async ctx => {
+    const userId = ctx.params.id
+    ctx.body = await createTokenPair(userId)
+})
+
 
 module.exports = router;

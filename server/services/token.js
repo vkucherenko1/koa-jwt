@@ -26,8 +26,8 @@ async function create({userId, refreshToken}) {
     }
 }
 
-async function find({refreshToken}) {
-    return (await Token.find({})).filter(e => bcrypt.compareSync(refreshToken, e.refreshToken));
+async function find(params) {
+    return await Token.find(params)
 }
 
 async function remove(params) {
