@@ -1,0 +1,23 @@
+{
+  "name": "node-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server/app.js",
+  "scripts": {
+    "start": "nodemon server/app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Vladimir Kucherenko <kucherenkov91@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^8.5.1",
+    "koa": "^2.5.1",
+    "koa-bodyparser": "4.3.0",
+    "koa-jwt": "4.0.0",
+    "koa-router": "10.0.0",
+    "mongoose": "^5.11.7",
+    "nodemon": "^2.0.4",
+    "uuid": "^8.3.2"
+  }
+}
