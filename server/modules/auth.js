@@ -39,7 +39,7 @@ router.post('/login', bodyParser(), async ctx => {
 })
 
 router.post('/refresh', jwtMiddleware({ secret: config.SECRET_KEY }), bodyParser(), async ctx => {
-    const refreshToken = Buffer.from(ctx.request.body.refreshToken, 'base64').toString('utf-8');;
+    const refreshToken = Buffer.from(ctx.request.body.refreshToken, 'base64').toString('utf-8');
     const { id: userId } = ctx.state.user;
     const [token] = (await tokenService.find({ userId })).filter(e => bcrypt.compareSync(refreshToken, e.refreshToken))
     if (!token) {
