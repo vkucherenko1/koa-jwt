@@ -42,12 +42,18 @@ router.post('/refresh', jwtMiddleware({ secret: config.SECRET_KEY }), bodyParser
     const refreshToken = Buffer.from(ctx.request.body.refreshToken, 'base64').toString('utf-8');
     const { id: userId, refreshToken: encodedRefreshToken } = ctx.state.user;
     if (refreshToken !== encodedRefreshToken) {
-        ctx.body = "Invalid refresh token"
+        ctx.body = {
+            "success": false,
+            "message": "Invalid refresh token"
+        }
     }
     else {
         const [token] = (await tokenService.find({ userId })).filter(e => bcrypt.compareSync(refreshToken, e.refreshToken))
         if (!token) {
-            ctx.body = "Invalid token"
+            ctx.body = {
+                "success": false,
+                "message": "Invalid token"
+            }
         }
         else {
             await tokenService.remove({ refreshToken: token.refreshToken })
